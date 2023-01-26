@@ -74,7 +74,6 @@ end
 
 
 local M = {}
-local tk_conf = require("telekasten").Cfg
 
 local todo_picker = function(opts)
     local command = {'grep', '-rHn', '\\- \\[[ x]\\]', opts.notes_home }
@@ -98,7 +97,7 @@ local todo_picker = function(opts)
                     table.insert(tasks, t[1])
                     local tsk = split(t[1],':',true)
                     -- command = string.format([[sed -i '%ss/- \[ \]/- [x]/' "%s"]],tsk[2], tsk[1])
-                    local replace_command = string.format([[awk -i inplace '{ if (NR==%s) { if (match(" \- \[ \]", $0)) { sub(/ \- \[ \]/," - [x]", $0); print $0 } else { gsub(/ \- \[x\]/," - [ ]", $0); print $0 } } else { print $0} }' %s]], tsk[2], tsk[1])
+                    local replace_command = string.format([[awk -i inplace '{ if (NR==%s) { if (match(" \\- \\[ \\]", $0)) { sub(/ \\- \\[ \\]/," - [x]", $0); print $0 } else { gsub(/ \\- \\[x\\]/," - [ ]", $0); print $0 } } else { print $0} }' %s]], tsk[2], tsk[1])
                     io.popen(replace_command)
                 end
             end
@@ -113,7 +112,8 @@ end
 
 local find_todo = function(opts)
     opts = opts or {}
-    opts.cwd = opts.cwd or vim.fn.getcwd()
+    local tk_conf = require("telekasten").Cfg
+    -- opts.cwd = opts.cwd or vim.fn.getcwd()
     opts.notes_home = opts.notes_home or tk_conf.home
 
     local tdpicker = todo_picker(opts)
