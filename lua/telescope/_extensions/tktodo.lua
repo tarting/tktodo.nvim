@@ -1,3 +1,4 @@
+
 local action_state = require("telescope.actions.state")
 local actions = require("telescope.actions")
 local finders = require("telescope.finders")
@@ -68,7 +69,7 @@ end
 --------------------------------------------------------------------------------
 
 
-local M = {}
+local replace_command_string = [[awk -i inplace 'BEGIN { ROI = %s }; NR == ROI  { if ( $0 ~ " \\- \\[ \\] " ) { sub( " \\- \\[ \\]", " - [x]", $0 ); print $0 } else { gsub( " \\- \\[x\\]", " - [ ]", $0 ); print $0 } }; NR != ROI { print $0 }' %s]]
 
 local todo_picker = function(opts)
     local command = {'grep', '-rHn', '\\- \\[[ x]\\]', opts.notes_home }
@@ -91,8 +92,7 @@ local todo_picker = function(opts)
                 for _, t in ipairs(selections) do
                     table.insert(tasks, t[1])
                     local tsk = split(t[1],':',true)
-                    -- command = string.format([[sed -i '%ss/- \[ \]/- [x]/' "%s"]],tsk[2], tsk[1])
-                    local replace_command = string.format([[awk -i inplace '{ if (NR==%s) { if (match(" \\- \\[ \\]", $0)) { sub(/ \\- \\[ \\]/," - [x]", $0); print $0 } else { gsub(/ \\- \\[x\\]/," - [ ]", $0); print $0 } } else { print $0} }' %s]], tsk[2], tsk[1])
+                    local replace_command = string.format(replace_command_string, tsk[2], tsk[1])
                     io.popen(replace_command)
                 end
             end
